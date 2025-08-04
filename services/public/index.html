@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CAM Automation System - Local Testing</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            padding: 40px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+            padding: 30px;
+            border: 2px solid #f1f2f6;
+            border-radius: 10px;
+            background: #fafafa;
+        }
+
+        .section h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+        }
+
+        .upload-area {
+            border: 3px dashed #3498db;
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            background: #f8f9ff;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .upload-area:hover {
+            border-color: #2980b9;
+            background: #e8f4fd;
+        }
+
+        .upload-area.dragover {
+            border-color: #27ae60;
+            background: #e8f8f5;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .upload-btn {
+            background: #3498db;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            margin: 10px;
+            transition: background 0.3s ease;
+        }
+
+        .upload-btn:hover {
+            background: #2980b9;
+        }
+
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: 400px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            background: white;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: #f8f9fa;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            padding: 12px 16px;
+            border-radius: 18px;
+            max-width: 80%;
+        }
+
+        .message.user {
+            background: #3498db;
+            color: white;
+            margin-left: auto;
+        }
+
+        .message.bot {
+            background: #ecf0f1;
+            color: #2c3e50;
+        }
+
+        .chat-input-container {
+            display: flex;
+            padding: 20px;
+            border-top: 1px solid #ddd;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1px solid #ddd;
+            border-radius: 25px;
+            font-size: 1rem;
+            outline: none;
+        }
+
+        .chat-send {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            margin-left: 10px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .status-card {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 10px 0;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-processing { background: #f39c12; }
+        .status-completed { background: #27ae60; }
+        .status-error { background: #e74c3c; }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #ecf0f1;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #3498db;
+            transition: width 0.3s ease;
+        }
+
+        .btn {
+            background: #3498db;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 0.9rem;
+        }
+
+        .btn:hover {
+            background: #2980b9;
+        }
+
+        .btn.success {
+            background: #27ae60;
+        }
+
+        .btn.danger {
+            background: #e74c3c;
+        }
+
+        .log-entry {
+            padding: 10px;
+            border-left: 4px solid #3498db;
+            margin: 5px 0;
+            background: #f8f9fa;
+            font-family: monospace;
+            font-size: 0.9rem;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+
+        .alert.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .alert.info {
+            background: #cce7ff;
+            color: #004085;
+            border: 1px solid #b3d7ff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏛️ CAM Automation System</h1>
+            <p>Local Testing Environment - No AWS Credentials Required</p>
+        </div>
+
+        <div class="main-content">
+            <!-- Document Upload Section -->
+            <div class="section">
+                <h2>📄 Document Upload & Processing</h2>
+                <div class="upload-area" id="uploadArea">
+                    <h3>Drop CAM Document Here</h3>
+                    <p>Or click to select PDF/Word files</p>
+                    <input type="file" id="fileInput" class="file-input" accept=".pdf,.doc,.docx" multiple>
+                    <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
+                        Choose Files
+                    </button>
+                </div>
+                <div id="uploadStatus"></div>
+            </div>
+
+            <!-- Document Status Section -->
+            <div class="section">
+                <h2>📊 Document Status</h2>
+                <div id="documentsList">
+                    <p>No documents uploaded yet. Upload a document to see processing status.</p>
+                </div>
+                <button class="btn" onclick="refreshDocuments()">🔄 Refresh Status</button>
+            </div>
+
+            <!-- Chat Interface Section -->
+            <div class="section">
+                <h2>💬 AI Assistant Chat</h2>
+                <div class="chat-container">
+                    <div class="chat-messages" id="chatMessages">
+                        <div class="message bot">
+                            <strong>CAM Assistant:</strong> Hello! I'm here to help you with CAM document processing. 
+                            You can ask me about uploading documents, checking status, or starting workflows.
+                        </div>
+                    </div>
+                    <div class="chat-input-container">
+                        <input type="text" id="chatInput" class="chat-input" placeholder="Type your message..." 
+                               onkeypress="if(event.key==='Enter') sendMessage()">
+                        <button class="chat-send" onclick="sendMessage()">Send</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Workflow Testing Section -->
+            <div class="section">
+                <h2>🔄 Maker-Checker Workflow</h2>
+                <div id="workflowSection">
+                    <p>Upload and process a document first to test workflows.</p>
+                </div>
+            </div>
+
+            <!-- Audit Logs Section -->
+            <div class="section">
+                <h2>📋 Audit Trail</h2>
+                <button class="btn" onclick="loadAuditLogs()">Load Recent Logs</button>
+                <div id="auditLogs"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3000';
+        let documents = new Map();
+        let chatSessionId = null;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            setupUploadArea();
+            refreshDocuments();
+            showAlert('System ready for testing! 🚀', 'success');
+        });
+
+        // Upload area setup
+        function setupUploadArea() {
+            const uploadArea = document.getElementById('uploadArea');
+            const fileInput = document.getElementById('fileInput');
+
+            uploadArea.addEventListener('click', () => fileInput.click());
+            
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.classList.add('dragover');
+            });
+
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.classList.remove('dragover');
+            });
+
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+                const files = e.dataTransfer.files;
+                handleFiles(files);
+            });
+
+            fileInput.addEventListener('change', (e) => {
+                handleFiles(e.target.files);
+            });
+        }
+
+        // Handle file uploads
+        async function handleFiles(files) {
+            for (let file of files) {
+                await uploadFile(file);
+            }
+        }
+
+        async function uploadFile(file) {
+            const formData = new FormData();
+            formData.append('document', file);
+
+            try {
+                showAlert(`Uploading ${file.name}...`, 'info');
+                
+                const response = await fetch(`${API_BASE}/upload`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    showAlert(`✅ ${file.name} uploaded successfully!`, 'success');
+                    documents.set(result.documentId, result.data);
+                    refreshDocuments();
+                } else {
+                    showAlert(`❌ Upload failed: ${result.error}`, 'error');
+                }
+            } catch (error) {
+                showAlert(`❌ Upload error: ${error.message}`, 'error');
+            }
+        }
+
+        // Refresh documents list
+        async function refreshDocuments() {
+            try {
+                const response = await fetch(`${API_BASE}/documents`);
+                const result = await response.json();
+                
+                displayDocuments(result.documents);
+            } catch (error) {
+                console.error('Error refreshing documents:', error);
+            }
+        }
+
+        function displayDocuments(docs) {
+            const container = document.getElementById('documentsList');
+            
+            if (docs.length === 0) {
+                container.innerHTML = '<p>No documents uploaded yet.</p>';
+                return;
+            }
+
+            container.innerHTML = docs.map(doc => `
+                <div class="status-card">
+                    <h4>📄 ${doc.fileName}</h4>
+                    <p><strong>Document ID:</strong> ${doc.documentId}</p>
+                    <p><strong>Borrower:</strong> ${doc.borrower_name || 'Processing...'}</p>
+                    <p><strong>Loan Amount:</strong> $${doc.loan_amount?.toLocaleString() || 'Processing...'}</p>
+                    <p><strong>Status:</strong> 
+                        <span class="status-indicator status-${doc.status}"></span>
+                        ${doc.status}
+                    </p>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${doc.progress || 0}%"></div>
+                    </div>
+                    <button class="btn" onclick="checkStatus('${doc.documentId}')">Check Status</button>
+                    <button class="btn success" onclick="startWorkflow('${doc.documentId}')">Start Workflow</button>
+                </div>
+            `).join('');
+        }
+
+        // Check document status
+        async function checkStatus(documentId) {
+            try {
+                const response = await fetch(`${API_BASE}/status/${documentId}`);
+                const result = await response.json();
+                
+                showAlert(`Status: ${result.status} (${result.progress}% complete)`, 'info');
+                refreshDocuments();
+            } catch (error) {
+                showAlert(`Error checking status: ${error.message}`, 'error');
+            }
+        }
+
+        // Start workflow
+        async function startWorkflow(documentId) {
+            try {
+                const response = await fetch(`${API_BASE}/workflow/start`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        documentId,
+                        checkerEmail: 'checker@demo.com'
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    showAlert(`✅ Workflow started! ID: ${result.workflowId}`, 'success');
+                    displayWorkflow(result.workflow);
+                } else {
+                    showAlert(`❌ Workflow start failed: ${result.error}`, 'error');
+                }
+            } catch (error) {
+                showAlert(`❌ Workflow error: ${error.message}`, 'error');
+            }
+        }
+
+        function displayWorkflow(workflow) {
+            const container = document.getElementById('workflowSection');
+            container.innerHTML = `
+                <div class="status-card">
+                    <h4>🔄 Workflow: ${workflow.workflowId}</h4>
+                    <p><strong>Status:</strong> ${workflow.status}</p>
+                    <p><strong>Checker:</strong> ${workflow.checkerEmail}</p>
+                    <button class="btn success" onclick="approveWorkflow('${workflow.workflowId}')">✅ Approve</button>
+                    <button class="btn danger" onclick="rejectWorkflow('${workflow.workflowId}')">❌ Reject</button>
+                </div>
+            `;
+        }
+
+        // Approve workflow
+        async function approveWorkflow(workflowId) {
+            await makeWorkflowDecision(workflowId, 'approve', 'Approved via local testing');
+        }
+
+        // Reject workflow
+        async function rejectWorkflow(workflowId) {
+            const comments = prompt('Rejection reason:') || 'Rejected via local testing';
+            await makeWorkflowDecision(workflowId, 'reject', comments);
+        }
+
+        async function makeWorkflowDecision(workflowId, decision, comments) {
+            try {
+                const response = await fetch(`${API_BASE}/workflow/${workflowId}/decision`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ decision, comments })
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    showAlert(`✅ Workflow ${decision}d successfully!`, 'success');
+                    displayWorkflow(result.workflow);
+                } else {
+                    showAlert(`❌ Decision failed: ${result.error}`, 'error');
+                }
+            } catch (error) {
+                showAlert(`❌ Decision error: ${error.message}`, 'error');
+            }
+        }
+
+        // Chat functionality
+        async function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+
+            addChatMessage(message, 'user');
+            input.value = '';
+
+            try {
+                const response = await fetch(`${API_BASE}/chat`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        message,
+                        sessionId: chatSessionId
+                    })
+                });
+
+                const result = await response.json();
+                chatSessionId = result.sessionId;
+                
+                addChatMessage(result.response, 'bot');
+            } catch (error) {
+                addChatMessage('Sorry, I encountered an error. Please try again.', 'bot');
+            }
+        }
+
+        function addChatMessage(message, sender) {
+            const container = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            messageDiv.innerHTML = sender === 'bot' ? `<strong>CAM Assistant:</strong> ${message}` : message;
+            container.appendChild(messageDiv);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        // Load audit logs
+        async function loadAuditLogs() {
+            try {
+                const response = await fetch(`${API_BASE}/audit?limit=20`);
+                const result = await response.json();
+                
+                const container = document.getElementById('auditLogs');
+                container.innerHTML = result.auditLogs.map(log => `
+                    <div class="log-entry">
+                        <strong>${log.timestamp}</strong> - ${log.action} by ${log.userId}
+                        <br><small>${log.details}</small>
+                    </div>
+                `).join('');
+            } catch (error) {
+                showAlert(`Error loading audit logs: ${error.message}`, 'error');
+            }
+        }
+
+        // Utility functions
+        function showAlert(message, type) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert ${type}`;
+            alertDiv.textContent = message;
+            
+            document.getElementById('uploadStatus').appendChild(alertDiv);
+            
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 5000);
+        }
+
+        // Auto-refresh documents every 30 seconds
+        setInterval(refreshDocuments, 30000);
+    </script>
+</body>
+</html>

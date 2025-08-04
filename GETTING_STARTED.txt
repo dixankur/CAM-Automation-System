@@ -1,0 +1,35 @@
+🏛️ CAM AUTOMATION SYSTEM - BANKING DOCUMENT PROCESSOR
+================================================================
+
+👋 HELLO! Welcome to the CAM Banking Automation System!
+
+📖 READ THIS FIRST:
+Open the file: "README_FOR_NON_TECHNICAL_USERS.md" 
+(It has complete step-by-step instructions)
+
+🚀 QUICK START (3 Steps):
+
+1. Install Node.js from: https://nodejs.org/
+   (Download and install - takes 5 minutes)
+
+2. Go to folder: CAM-Automation-System → services
+   Double-click: start-server.bat
+
+3. Open browser and go to: localhost:3000
+
+🎯 WHAT YOU'LL SEE:
+✅ Professional banking interface
+✅ Document upload system  
+✅ AI chat assistant
+✅ Workflow management
+✅ Real-time processing
+✅ Audit logging
+
+📞 NEED HELP?
+- Read: README_FOR_NON_TECHNICAL_USERS.md (detailed guide)
+- Check: docs/TROUBLESHOOTING.md (if issues)
+
+🎉 ENJOY TESTING THE SYSTEM!
+
+================================================================
+This is enterprise-grade banking software - have fun exploring! 🚀

@@ -1,0 +1,56 @@
+{
+  "name": "cam-automation-system",
+  "version": "1.0.0",
+  "description": "Compliance-grade CAM automation system for high net worth banking",
+  "main": "index.js",
+  "scripts": {
+    "build": "npm run build:infrastructure && npm run build:services",
+    "build:infrastructure": "cd infrastructure && npm run build",
+    "build:services": "cd services && npm run build",
+    "deploy": "npm run deploy:infrastructure && npm run deploy:services",
+    "deploy:infrastructure": "cd infrastructure && npm run deploy",
+    "deploy:services": "cd services && npm run deploy",
+    "test": "npm run test:infrastructure && npm run test:services",
+    "test:infrastructure": "cd infrastructure && npm run test",
+    "test:services": "cd services && npm run test",
+    "lint": "eslint . --ext .ts,.js",
+    "format": "prettier --write .",
+    "docs": "typedoc --out docs/api src/",
+    "clean": "rimraf dist coverage .nyc_output",
+    "start:local": "cd services && npm run start:local"
+  },
+  "keywords": [
+    "cam",
+    "banking",
+    "automation",
+    "aws",
+    "compliance",
+    "legal-documents",
+    "ai",
+    "fintech"
+  ],
+  "author": "Banking Technology Team",
+  "license": "PROPRIETARY",
+  "private": true,
+  "workspaces": [
+    "infrastructure",
+    "services/*",
+    "frontend"
+  ],
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "eslint": "^8.0.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-prettier": "^5.0.0",
+    "prettier": "^3.0.0",
+    "rimraf": "^5.0.0",
+    "typedoc": "^0.25.0",
+    "typescript": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  }
+}
