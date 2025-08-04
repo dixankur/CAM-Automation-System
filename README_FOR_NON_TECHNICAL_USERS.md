@@ -1,18 +1,14 @@
 # 🏛️ CAM Automation System - Simple Setup Guide
 
-## 📧 You've Received This Project Via Email - Here's How to Run It!
-
-**Don't worry if you're not technical - this guide is written for everyone!**
-
 ---
 
 ## 🎯 What This System Does
 This is a **Banking Document Automation System** that:
-- ✅ Processes loan documents automatically
-- ✅ Has an AI chat assistant to help users
-- ✅ Creates legal forms automatically
-- ✅ Tracks all activities for compliance
-- ✅ Works like a real banking system (but it's a demo)
+-  Processes loan documents automatically
+-  Has an AI chat assistant to help users
+-  Creates legal forms automatically
+-  Tracks all activities for compliance
+-  Works like a real banking system (but it's a demo)
 
 ---
 
@@ -26,7 +22,6 @@ This is a **Banking Document Automation System** that:
 5. **Click "Extract"**
 
 ### Step 2: Install Node.js (One-Time Setup)
-**What is Node.js?** It's like a engine that runs this banking system on your computer.
 
 1. **Open your web browser** (Chrome, Firefox, Edge, etc.)
 2. **Go to:** `https://nodejs.org/`
