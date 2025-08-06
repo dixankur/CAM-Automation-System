@@ -138,8 +138,10 @@
 
         .chat-input-container {
             display: flex;
-            padding: 20px;
+            padding: 15px;
             border-top: 1px solid #ddd;
+            background: #fff;
+            border-radius: 0 0 10px 10px;
         }
 
         .chat-input {
@@ -149,17 +151,44 @@
             border-radius: 25px;
             font-size: 1rem;
             outline: none;
+            transition: all 0.3s ease;
         }
 
-        .chat-send {
+        .chat-input:focus {
+            border-color: #3498db;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+
+        .chat-send, .voice-btn {
             background: #3498db;
             color: white;
             border: none;
-            padding: 12px 20px;
-            border-radius: 25px;
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
             margin-left: 10px;
             cursor: pointer;
             font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .voice-btn.listening {
+            background: #e74c3c;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .voice-btn:hover, .chat-send:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
         }
 
         .status-card {
@@ -296,9 +325,19 @@
                         </div>
                     </div>
                     <div class="chat-input-container">
-                        <input type="text" id="chatInput" class="chat-input" placeholder="Type your message..." 
+                        <input type="text" id="chatInput" class="chat-input" 
+                               placeholder="Type your message or click the mic to speak..." 
                                onkeypress="if(event.key==='Enter') sendMessage()">
-                        <button class="chat-send" onclick="sendMessage()">Send</button>
+                        <button id="voiceBtn" class="voice-btn" title="Click and hold to speak" 
+                                onmousedown="startVoiceRecognition()" 
+                                onmouseup="stopVoiceRecognition()"
+                                ontouchstart="startVoiceRecognition()"
+                                touchend="stopVoiceRecognition()">
+                            🎤
+                        </button>
+                        <button class="chat-send" onclick="sendMessage()" title="Send message">
+                            ➤
+                        </button>
                     </div>
                 </div>
             </div>
@@ -586,6 +625,135 @@
 
         // Auto-refresh documents every 30 seconds
         setInterval(refreshDocuments, 30000);
+
+        // Voice recognition setup
+        let recognition;
+        let isListening = false;
+        let finalTranscript = '';
+
+        function initVoiceRecognition() {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            
+            if (!SpeechRecognition) {
+                console.warn('Speech recognition not supported in this browser');
+                return;
+            }
+
+            recognition = new SpeechRecognition();
+            recognition.continuous = true;
+            recognition.interimResults = true;
+            recognition.lang = 'en-US';
+
+            recognition.onresult = (event) => {
+                let interimTranscript = '';
+                
+                for (let i = event.resultIndex; i < event.results.length; i++) {
+                    const transcript = event.results[i][0].transcript;
+                    if (event.results[i].isFinal) {
+                        finalTranscript += transcript;
+                    } else {
+                        interimTranscript += transcript;
+                    }
+                }
+                
+                // Update input field with interim results
+                const chatInput = document.getElementById('chatInput');
+                chatInput.value = finalTranscript + interimTranscript;
+            };
+
+            recognition.onerror = (event) => {
+                console.error('Speech recognition error', event.error);
+                if (event.error === 'not-allowed') {
+                    showAlert('Microphone access was denied. Please allow microphone access to use voice commands.', 'error');
+                }
+                stopVoiceRecognition();
+            };
+
+            recognition.onend = () => {
+                if (isListening) {
+                    // If still supposed to be listening, restart recognition
+                    recognition.start();
+                }
+            };
+        }
+
+        function startVoiceRecognition() {
+            const voiceBtn = document.getElementById('voiceBtn');
+            if (!recognition) {
+                initVoiceRecognition();
+            }
+            
+            if (recognition) {
+                try {
+                    finalTranscript = '';
+                    isListening = true;
+                    voiceBtn.classList.add('listening');
+                    recognition.start();
+                } catch (error) {
+                    console.error('Error starting voice recognition:', error);
+                    showAlert('Error starting voice recognition. Please try again.', 'error');
+                }
+            } else {
+                showAlert('Voice recognition is not supported in your browser.', 'error');
+            }
+        }
+
+        function stopVoiceRecognition() {
+            const voiceBtn = document.getElementById('voiceBtn');
+            isListening = false;
+            voiceBtn.classList.remove('listening');
+            
+            if (recognition) {
+                try {
+                    recognition.stop();
+                    // Auto-send if we have a final transcript
+                    if (finalTranscript.trim()) {
+                        const chatInput = document.getElementById('chatInput');
+                        chatInput.value = finalTranscript;
+                        sendMessage();
+                    }
+                } catch (error) {
+                    console.error('Error stopping voice recognition:', error);
+                }
+            }
+        }
+
+        // Initialize text-to-speech
+        function speak(text, callback) {
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.rate = 1.0;
+                utterance.pitch = 1.0;
+                utterance.voice = window.speechSynthesis.getVoices().find(voice => 
+                    voice.name.includes('English') || voice.lang.includes('en')
+                ) || null;
+                
+                utterance.onend = function() {
+                    if (callback) callback();
+                };
+                
+                window.speechSynthesis.speak(utterance);
+            } else {
+                console.warn('Text-to-speech not supported in this browser');
+                if (callback) callback();
+            }
+        }
+
+        // Modify addChatMessage to support voice output
+        const originalAddChatMessage = addChatMessage;
+        window.addChatMessage = function(message, sender) {
+            originalAddChatMessage(message, sender);
+            
+            // Only speak bot responses
+            if (sender === 'bot') {
+                // Don't speak if the message is from a system action like document upload
+                if (!message.includes('uploaded successfully') && 
+                    !message.startsWith('Status:') && 
+                    !message.includes('Workflow')) {
+                    speak(message);
+                }
+            }
+        };
     </script>
 </body>
 </html>
